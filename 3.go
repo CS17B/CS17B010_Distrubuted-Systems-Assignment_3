@@ -8,35 +8,38 @@ import (
 var ledger int = 0
 var wg sync.WaitGroup
 
-var ch chan int
-
-func worker1() {
-	ch <- 1
-	ledger = 5
-	<-ch
+func worker1(a int, c chan int) {
+	c <- a
 	wg.Done()
+
 }
 
-func worker2() {
-	ch <- 1
-	ledger = 4
-	<-ch
+func worker2(b int, c chan int) {
+	c <- b
 	wg.Done()
+
 }
 
-func worker3() {
-	ch <- 1
-	ledger = 3
-	<-ch
+func worker3(d int, c chan int) {
+	c <- d
 	wg.Done()
+}
+func function(c chan int) {
+
+	for {
+		ledger = <-c
+	}
 }
 
 func main() {
-	ch = make(chan int)
+
+	c := make(chan int)
+	go function(c)
 	wg.Add(3)
-	go worker1()
-	go worker2()
-	go worker3()
+	go worker1(5, c)
+	go worker2(3, c)
+	go worker3(4, c)
+
 	wg.Wait()
 	fmt.Printf("%d\n", ledger)
 }
